@@ -264,6 +264,25 @@ def moderator():
     loans = get_all_loans_moderator()
     return render_template('moderator.html', loans=loans)
 
+@app.route('/approve_loan/<int:loan_id>', methods=['POST'])
+@login_required
+def approve_loan(loan_id):
+    if current_user.user_type != 'moderator':
+        flash('Доступ только для модераторов.', 'error')
+        return redirect(url_for('index'))
+    
+    issue_date = request.form['issue_date']
+    maturity_date = request.form['maturity_date']
+    
+    if not issue_date or not maturity_date:
+        flash('Необходимо указать даты начала и погашения займа.', 'error')
+        return redirect(url_for('moderator'))
+    
+    update_loan_status(loan_id, 'issued', issue_date, maturity_date)
+    transfer_to_borrower(loan_id)
+    flash('Займ успешно выдан.', 'success')
+    return redirect(url_for('moderator'))
+
 @app.route('/submit_loan', methods=['POST'])
 @login_required
 def submit_loan():

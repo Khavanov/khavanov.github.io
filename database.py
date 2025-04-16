@@ -213,10 +213,14 @@ def get_investment_offer(loan_id):
                 'user_id': offer[4], 'company_name': offer[5]}
     return None
 
-def update_loan_status(loan_id, status):
+def update_loan_status(loan_id, status, issue_date=None, maturity_date=None):
     conn = sqlite3.connect('p2p_lending.db')
     c = conn.cursor()
-    c.execute('UPDATE loans SET status = ? WHERE id = ?', (status, loan_id))
+    if issue_date and maturity_date:
+        c.execute('UPDATE loans SET status = ?, issue_date = ?, maturity_date = ? WHERE id = ?',
+                 (status, issue_date, maturity_date, loan_id))
+    else:
+        c.execute('UPDATE loans SET status = ? WHERE id = ?', (status, loan_id))
     conn.commit()
     conn.close()
 
@@ -241,9 +245,9 @@ def add_investment(investor_id, loan_id, amount):
             raise ValueError("Займ не найден")
         loan_amount, status = loan
         print(f"Loan details: amount={loan_amount}, status={status}")
-        if status == 'issued':
-            print(f"Error: Loan {loan_id} is already issued")
-            raise ValueError("Займ уже выдан")
+        if status not in ['accepted', 'funding']:
+            print(f"Error: Loan {loan_id} is not available for funding")
+            raise ValueError("Займ недоступен для инвестирования")
         if amount <= 0:
             print(f"Error: Invalid investment amount={amount}")
             raise ValueError("Сумма инвестиции должна быть больше 0")
@@ -257,9 +261,8 @@ def add_investment(investor_id, loan_id, amount):
         new_invested = invested + amount
         print(f"New invested amount: {new_invested}")
         if abs(new_invested - loan_amount) < 0.0001:
-            print(f"Loan {loan_id} fully funded, setting status to 'issued'")
-            c.execute('UPDATE loans SET status = ? WHERE id = ?', ('issued', loan_id))
-            transfer_to_borrower(loan_id)
+            print(f"Loan {loan_id} fully funded, setting status to 'pending_approval'")
+            c.execute('UPDATE loans SET status = ? WHERE id = ?', ('pending_approval', loan_id))
         c.execute('COMMIT')
         print(f"Investment successful: {amount} for loan_id={loan_id}")
         return True

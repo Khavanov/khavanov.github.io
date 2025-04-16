@@ -36,6 +36,8 @@
                         Сбор средств
                     {% elif loan.status == 'issued' %}
                         Займ выдан
+                    {% elif loan.status == 'pending_approval' %}
+                        Ожидает подтверждения
                     {% endif %}
                 </td>
                 <td>
@@ -47,11 +49,19 @@
                 </td>
                 <td>
                     {% if loan.status == 'pending' %}
-                    <a href="{{ url_for('create_offer', loan_id=loan.id) }}" class="btn btn-success btn-sm">Создать предложение</a>
-                    {% endif %}
+                    <form action="{{ url_for('create_offer', loan_id=loan.id) }}" method="GET" style="display: inline;">
+                        <button type="submit" class="btn btn-primary btn-sm">Создать предложение</button>
+                    </form>
                     <form action="{{ url_for('delete_loan_route', loan_id=loan.id) }}" method="POST" style="display: inline;">
                         <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
                     </form>
+                    {% elif loan.status == 'pending_approval' %}
+                    <form action="{{ url_for('approve_loan', loan_id=loan.id) }}" method="POST" style="display: inline;">
+                        <input type="date" name="issue_date" required>
+                        <input type="date" name="maturity_date" required>
+                        <button type="submit" class="btn btn-success btn-sm">Выдать займ</button>
+                    </form>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

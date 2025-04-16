@@ -23,13 +23,34 @@ body {
     transform: translateY(-2px);
 }
 
-.nav-link {
+.nav-tabs .nav-link {
+    color: #495057 !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #0061f2 !important;
+    transform: translateY(-2px);
+    border-color: #dee2e6;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0061f2 !important;
+    background-color: #ffffff;
+    border-color: #dee2e6 #dee2e6 #fff;
+    font-weight: 600;
+}
+
+.navbar .nav-link {
     color: rgba(255, 255, 255, 0.9) !important;
     font-weight: 500;
     transition: all 0.3s ease;
 }
 
-.nav-link:hover {
+.navbar .nav-link:hover {
     color: white !important;
     transform: translateY(-2px);
 }

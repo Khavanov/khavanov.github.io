@@ -21,6 +21,8 @@ def init_db():
                  description TEXT NOT NULL,
                  file_path TEXT,
                  status TEXT DEFAULT 'pending',
+                 interest_payment_date TEXT,
+                 interest_amount REAL,
                  FOREIGN KEY (user_id) REFERENCES users(id)
                  )''')
 
@@ -216,13 +218,36 @@ def get_investment_offer(loan_id):
 def update_loan_status(loan_id, status, issue_date=None, maturity_date=None):
     conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
-    if issue_date and maturity_date:
-        c.execute('UPDATE loans SET status = ?, issue_date = ?, maturity_date = ? WHERE id = ?',
-                 (status, issue_date, maturity_date, loan_id))
-    else:
-        c.execute('UPDATE loans SET status = ? WHERE id = ?', (status, loan_id))
-    conn.commit()
-    conn.close()
+    try:
+        if issue_date and maturity_date:
+            # Получаем информацию о займе
+            c.execute('SELECT amount, term FROM loans WHERE id = ?', (loan_id,))
+            loan_info = c.fetchone()
+            if loan_info:
+                amount, term = loan_info
+                # Рассчитываем сумму процентов (5% годовых)
+                interest_rate = 0.05
+                interest_amount = amount * interest_rate * (term / 12)
+                # Устанавливаем дату платежа по процентам на середину срока
+                issue_date_obj = datetime.strptime(issue_date, '%Y-%m-%d')
+                interest_payment_date = (issue_date_obj + (datetime.strptime(maturity_date, '%Y-%m-%d') - issue_date_obj) / 2).strftime('%Y-%m-%d')
+                
+                c.execute('''UPDATE loans 
+                           SET status = ?, 
+                           issue_date = ?, 
+                           maturity_date = ?,
+                           interest_payment_date = ?,
+                           interest_amount = ?
+                           WHERE id = ?''',
+                         (status, issue_date, maturity_date, interest_payment_date, interest_amount, loan_id))
+        else:
+            c.execute('UPDATE loans SET status = ? WHERE id = ?', (status, loan_id))
+        conn.commit()
+    except Exception as e:
+        print(f"Error updating loan status: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
 
 def get_invested_amount(loan_id):
     conn = sqlite3.connect('p2p_lending.db', timeout=30.0)

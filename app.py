@@ -253,7 +253,8 @@ def borrower():
         return redirect(url_for('index'))
     loans = get_user_loans(current_user.id)
     balance = get_nominal_balance(current_user.id)
-    return render_template('borrower.html', loans=loans, balance=balance)
+    transactions = get_transactions(current_user.id)
+    return render_template('borrower.html', loans=loans, balance=balance, transactions=transactions)
 
 @app.route('/moderator')
 @login_required

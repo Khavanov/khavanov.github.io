@@ -73,5 +73,32 @@
             {% endfor %}
         </tbody>
     </table>
+
+    {% for loan in loans %}
+    <div class="loan-item">
+        <h3>{{ loan.company_name }}</h3>
+        <p>Сумма займа: {{ loan.amount }} млн</p>
+        <p>Срок: {{ loan.term }} месяцев</p>
+        <p>Статус: {{ loan.status }}</p>
+        {% if loan.status == 'issued' %}
+            <p>Дата выдачи: {{ loan.issue_date }}</p>
+            <p>Дата погашения: {{ loan.maturity_date }}</p>
+            <p>Дата уплаты процентов: {{ loan.interest_payment_date }}</p>
+            <p>Сумма процентов: {{ "%.2f"|format(loan.interest_amount) }} млн</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <h2>История транзакций</h2>
+    <div class="transactions">
+        {% for transaction in transactions %}
+        <div class="transaction-item">
+            <p>Дата: {{ transaction.date }}</p>
+            <p>Тип: {{ transaction.type }}</p>
+            <p>Сумма: {{ transaction.amount }} млн</p>
+            <p>Метод: {{ transaction.method }}</p>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

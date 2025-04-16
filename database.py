@@ -233,61 +233,61 @@ def get_invested_amount(loan_id):
     return total or 0.0
 
 def add_investment(investor_id, loan_id, amount):
-    conn = sqlite3.connect('p2p_lending.db', isolation_level=None, timeout=30.0)
-    c = conn.cursor()
-    try:
-        c.execute('BEGIN EXCLUSIVE')
-        print(f"Attempting investment: investor_id={investor_id}, loan_id={loan_id}, amount={amount}")
+    with sqlite3.connect('p2p_lending.db', timeout=60.0) as conn:
+        conn.isolation_level = None
+        c = conn.cursor()
+        try:
+            c.execute('BEGIN IMMEDIATE')
+            print(f"Attempting investment: investor_id={investor_id}, loan_id={loan_id}, amount={amount}")
 
-        # Проверка займа
-        c.execute('SELECT amount, status FROM loans WHERE id = ?', (loan_id,))
-        loan = c.fetchone()
-        if not loan:
-            print(f"Error: Loan {loan_id} not found")
-            raise ValueError("Займ не найден")
+            # Проверка займа
+            c.execute('SELECT amount, status FROM loans WHERE id = ?', (loan_id,))
+            loan = c.fetchone()
+            if not loan:
+                print(f"Error: Loan {loan_id} not found")
+                raise ValueError("Займ не найден")
 
-        loan_amount, status = loan
-        print(f"Loan details: amount={loan_amount}, status={status}")
+            loan_amount, status = loan
+            print(f"Loan details: amount={loan_amount}, status={status}")
 
-        # Проверка статуса
-        if status != 'accepted':
-            print(f"Error: Loan {loan_id} is not available for funding")
-            raise ValueError("Займ недоступен для инвестирования")
+            # Проверка статуса
+            if status != 'accepted':
+                print(f"Error: Loan {loan_id} is not available for funding")
+                raise ValueError("Займ недоступен для инвестирования")
 
-        # Проверка суммы
-        if amount <= 0:
-            print(f"Error: Invalid investment amount={amount}")
-            raise ValueError("Сумма инвестиции должна быть больше 0")
+            # Проверка суммы
+            if amount <= 0:
+                print(f"Error: Invalid investment amount={amount}")
+                raise ValueError("Сумма инвестиции должна быть больше 0")
 
-        # Проверка остатка по займу
-        invested = get_invested_amount(loan_id)
-        remaining = loan_amount - invested
-        print(f"Current invested amount: {invested}, remaining: {remaining}")
+            # Проверка остатка по займу
+            c.execute('SELECT COALESCE(SUM(amount), 0) FROM investments WHERE loan_id = ?', (loan_id,))
+            invested = c.fetchone()[0]
+            remaining = loan_amount - invested
+            print(f"Current invested amount: {invested}, remaining: {remaining}")
 
-        if amount > remaining:
-            print(f"Error: Investment exceeds remaining amount: amount={amount}, remaining={remaining}")
-            raise ValueError(f"Сумма инвестиции ({amount} млн) превышает остаток по займу ({remaining} млн)")
+            if amount > remaining:
+                print(f"Error: Investment exceeds remaining amount: amount={amount}, remaining={remaining}")
+                raise ValueError(f"Сумма инвестиции ({amount} млн) превышает остаток по займу ({remaining} млн)")
 
-        # Добавление инвестиции
-        c.execute('INSERT INTO investments (investor_id, loan_id, amount, investment_date) VALUES (?, ?, ?, ?)',
-                  (investor_id, loan_id, amount, datetime.now().strftime('%Y-%m-%d')))
+            # Добавление инвестиции
+            c.execute('INSERT INTO investments (investor_id, loan_id, amount, investment_date) VALUES (?, ?, ?, ?)',
+                      (investor_id, loan_id, amount, datetime.now().strftime('%Y-%m-%d')))
 
-        # Обновление статуса займа если собрана вся сумма
-        new_invested = invested + amount
-        print(f"New invested amount: {new_invested}")
-        if abs(new_invested - loan_amount) < 0.0001:
-            print(f"Loan {loan_id} fully funded, setting status to 'pending_approval'")
-            c.execute('UPDATE loans SET status = ? WHERE id = ?', ('pending_approval', loan_id))
+            # Обновление статуса займа если собрана вся сумма
+            new_invested = invested + amount
+            print(f"New invested amount: {new_invested}")
+            if abs(new_invested - loan_amount) < 0.0001:
+                print(f"Loan {loan_id} fully funded, setting status to 'pending_approval'")
+                c.execute('UPDATE loans SET status = ? WHERE id = ?', ('pending_approval', loan_id))
 
-        c.execute('COMMIT')
-        print(f"Investment successful: {amount} for loan_id={loan_id}")
-        return True
-    except Exception as e:
-        print(f"Investment error: {e}")
-        c.execute('ROLLBACK')
-        return False
-    finally:
-        conn.close()
+            c.execute('COMMIT')
+            print(f"Investment successful: {amount} for loan_id={loan_id}")
+            return True
+        except Exception as e:
+            print(f"Investment error: {e}")
+            c.execute('ROLLBACK')
+            return False
 
 def transfer_to_borrower(loan_id):
     conn = sqlite3.connect('p2p_lending.db', timeout=30.0)

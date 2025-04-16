@@ -84,7 +84,7 @@
             <p>Дата выдачи: {{ loan.issue_date }}</p>
             <p>Дата погашения: {{ loan.maturity_date }}</p>
             <p>Дата уплаты процентов: {{ loan.interest_payment_date }}</p>
-            <p>Сумма процентов: {{ "%.2f"|format(loan.interest_amount) }} млн</p>
+            <p>Сумма процентов: {{ "%.2f"|format(loan.interest_amount if loan.interest_amount is not none else 0) }} млн</p>
         {% endif %}
     </div>
     {% endfor %}

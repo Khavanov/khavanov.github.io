@@ -187,9 +187,15 @@ body {
     display: none;
     z-index: 100;
     white-space: nowrap;
-    top: -25px;
+    top: -30px;
     left: 50%;
     transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.sparkline {
+    position: relative;
+    cursor: pointer;
 }
 
 .sparkline:hover .sparkline-tooltip {

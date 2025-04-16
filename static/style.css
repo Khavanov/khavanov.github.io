@@ -168,13 +168,15 @@ body {
     background: #f0f0f0;
     border-radius: 4px;
     position: relative;
-    overflow: hidden;
+    cursor: pointer;
+    margin: 15px 0;
 }
 
 .sparkline-fill {
     height: 100%;
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     transition: width 0.3s ease;
+    position: relative;
 }
 
 .sparkline-tooltip {
@@ -185,17 +187,11 @@ body {
     border-radius: 4px;
     font-size: 12px;
     display: none;
-    z-index: 100;
+    z-index: 1000;
     white-space: nowrap;
-    top: -30px;
+    top: -25px;
     left: 50%;
     transform: translateX(-50%);
-    pointer-events: none;
-}
-
-.sparkline {
-    position: relative;
-    cursor: pointer;
 }
 
 .sparkline:hover .sparkline-tooltip {

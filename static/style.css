@@ -187,6 +187,9 @@ body {
     display: none;
     z-index: 100;
     white-space: nowrap;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .sparkline:hover .sparkline-tooltip {

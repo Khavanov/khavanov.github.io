@@ -5,6 +5,14 @@ def init_db():
     conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
 
+    # Добавляем новые колонки в таблицу loans если их нет
+    def add_column_if_not_exists(table, column, type):
+        try:
+            c.execute(f'ALTER TABLE {table} ADD COLUMN {column} {type}')
+            print(f'Added column {column} to {table}')
+        except sqlite3.OperationalError:
+            pass
+
     c.execute('''CREATE TABLE IF NOT EXISTS users (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  email TEXT UNIQUE NOT NULL,
@@ -34,11 +42,10 @@ def init_db():
         c.execute('ALTER TABLE loans ADD COLUMN maturity_date TEXT')
     except sqlite3.OperationalError:
         pass
-    try:
-        c.execute('ALTER TABLE loans ADD COLUMN collateral TEXT')
-    except sqlite3.OperationalError:
-        pass
-
+    add_column_if_not_exists('loans', 'collateral', 'TEXT')
+    add_column_if_not_exists('loans', 'interest_payment_date', 'TEXT')
+    add_column_if_not_exists('loans', 'interest_amount', 'REAL')
+    
     c.execute('''CREATE TABLE IF NOT EXISTS investment_offers (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  loan_id INTEGER,

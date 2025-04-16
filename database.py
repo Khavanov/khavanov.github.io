@@ -154,7 +154,9 @@ def get_all_loans_moderator():
 def get_user_loans(user_id):
     conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
-    c.execute('SELECT id, user_id, amount, term, company_name, description, file_path, status FROM loans WHERE user_id = ?', (user_id,))
+    c.execute('''SELECT id, user_id, amount, term, company_name, description, file_path, 
+                 status, issue_date, maturity_date, interest_payment_date, interest_amount 
+                 FROM loans WHERE user_id = ?''', (user_id,))
     loans = c.fetchall()
     conn.close()
     result = []
@@ -163,7 +165,9 @@ def get_user_loans(user_id):
         result.append({
             'id': loan[0], 'user_id': loan[1], 'amount': loan[2], 'term': loan[3],
             'company_name': loan[4], 'description': loan[5], 'file_path': loan[6], 
-            'status': loan[7], 'invested_amount': invested
+            'status': loan[7], 'issue_date': loan[8], 'maturity_date': loan[9],
+            'interest_payment_date': loan[10], 'interest_amount': loan[11],
+            'invested_amount': invested
         })
     return result
 

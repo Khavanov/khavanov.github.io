@@ -181,8 +181,8 @@ body {
 
 .sparkline-tooltip {
     position: absolute;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
+    background: transparent;
+    color: #000;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;

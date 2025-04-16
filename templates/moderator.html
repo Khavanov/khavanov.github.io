@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Панель модератора</h1>
+    <h2>Заявки на займы</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Компания</th>
+                <th>Сумма</th>
+                <th>Собрано</th>
+                <th>Срок</th>
+                <th>Статус</th>
+                <th>Файл</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loan in loans %}
+            <tr>
+                <td>{{ loan.id }}</td>
+                <td>{{ loan.company_name }}</td>
+                <td>{{ loan.amount }} млн</td>
+                <td>{{ loan.invested_amount }} млн</td>
+                <td>{{ loan.term }} месяцев</td>
+                <td>
+                    {% if loan.status == 'pending' %}
+                        На рассмотрении
+                    {% elif loan.status == 'approved' %}
+                        Одобрено
+                    {% elif loan.status == 'rejected' %}
+                        Отклонено
+                    {% elif loan.status == 'accepted' %}
+                        Сбор средств
+                    {% elif loan.status == 'issued' %}
+                        Займ выдан
+                    {% endif %}
+                </td>
+                <td>
+                    {% if loan.file_path %}
+                    <a href="{{ url_for('uploaded_file', filename=loan.file_path) }}">Скачать</a>
+                    {% else %}
+                    Нет файла
+                    {% endif %}
+                </td>
+                <td>
+                    {% if loan.status == 'pending' %}
+                    <a href="{{ url_for('create_offer', loan_id=loan.id) }}" class="btn btn-success btn-sm">Создать предложение</a>
+                    {% endif %}
+                    <form action="{{ url_for('delete_loan_route', loan_id=loan.id) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Панель заёмщика</h1>
+    <p><strong>Баланс счёта:</strong> {{ balance }} млн</p>
+    <h2>Подать заявку на займ</h2>
+    <form method="POST" action="{{ url_for('submit_loan') }}" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="amount" class="form-label">Сумма (млн)</label>
+            <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+        </div>
+        <div class="mb-3">
+            <label for="term" class="form-label">Срок (месяцы)</label>
+            <input type="number" class="form-control" id="term" name="term" required>
+        </div>
+        <div class="mb-3">
+            <label for="company_name" class="form-label">Название компании</label>
+            <input type="text" class="form-control" id="company_name" name="company_name" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Описание</label>
+            <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="file" class="form-label">Документ (PDF)</label>
+            <input type="file" class="form-control" id="file" name="file" accept=".pdf" required>
+        </div>
+        <button type="submit" class="btn btn-success">Подать заявку</button>
+    </form>
+
+    <h2 class="mt-4">Ваши займы</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Компания</th>
+                <th>Сумма</th>
+                <th>Собрано</th>
+                <th>Срок</th>
+                <th>Статус</th>
+                <th>Файл</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loan in loans %}
+            <tr>
+                <td>{{ loan.company_name }}</td>
+                <td>{{ loan.amount }} млн</td>
+                <td>{{ loan.invested_amount }} млн</td>
+                <td>{{ loan.term }} месяцев</td>
+                <td>
+                    {% if loan.status == 'pending' %}
+                        На рассмотрении
+                    {% elif loan.status == 'approved' %}
+                        Одобрено
+                        <a href="{{ url_for('investment_offer', loan_id=loan.id) }}" class="btn btn-success btn-sm">Просмотреть предложение</a>
+                    {% elif loan.status == 'rejected' %}
+                        Отклонено
+                    {% elif loan.status == 'accepted' %}
+                        Сбор средств
+                    {% elif loan.status == 'issued' %}
+                        Займ выдан
+                    {% endif %}
+                </td>
+                <td>
+                    {% if loan.file_path %}
+                    <a href="{{ url_for('uploaded_file', filename=loan.file_path) }}">Скачать</a>
+                    {% else %}
+                    Нет файла
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

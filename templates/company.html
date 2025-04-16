@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">{{ company.name }}</h2>
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title">Описание компании</h3>
+        <p class="card-text">{{ company.description }}</p>
+        <h3 class="card-title">Финансовые показатели</h3>
+        <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item"><strong>Выручка:</strong> {{ company.revenue }} млн</li>
+            <li class="list-group-item"><strong>Прибыль:</strong> {{ company.profit }} млн</li>
+        </ul>
+        <h3 class="card-title">Прогнозы</h3>
+        <p class="card-text">{{ company.forecast }}</p>
+        <a href="{{ url_for('investor') }}" class="btn btn-outline-primary">Назад к заявкам</a>
+    </div>
+</div>
+{% endblock %}

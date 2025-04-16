@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">Инвестиционное предложение для {{ offer.company_name }}</h2>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Параметры предложения</h5>
+        <p class="card-text"><strong>Сумма:</strong> {{ offer.amount }} млн</p>
+        <p class="card-text"><strong>Срок:</strong> {{ offer.term }} месяцев</p>
+        <p class="card-text"><strong>Процентная ставка:</strong> {{ offer.interest_rate }}% годовых</p>
+        <form method="POST" action="{{ url_for('investment_offer', loan_id=offer.loan_id) }}">
+            <button type="submit" name="accept" value="yes" class="btn btn-success me-2">Принять</button>
+            <button type="submit" name="accept" value="no" class="btn btn-danger">Отклонить</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

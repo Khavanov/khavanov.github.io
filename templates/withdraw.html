@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Вывод средств</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="amount" class="form-label">Сумма (млн RUB)</label>
+            <input type="number" name="amount" id="amount" step="0.1" min="0.1" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="method" class="form-label">Способ вывода</label>
+            <select name="method" id="method" class="form-select" required>
+                <option value="card">Карта</option>
+                <option value="account">Расчётный счёт</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Вывести</button>
+        <a href="{{ url_for('investor_home') }}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

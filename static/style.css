@@ -1,99 +1,142 @@
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #000000;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+    line-height: 1.6;
 }
 
 .navbar {
-    background-color: #007bff;
+    background: linear-gradient(135deg, #0061f2 0%, #00a6eb 100%);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
 }
 
 .navbar-brand {
-    color: #000000 !important;
+    color: white !important;
+    font-weight: 600;
+    font-size: 1.4rem;
+    transition: transform 0.2s;
+}
+
+.navbar-brand:hover {
+    transform: translateY(-2px);
 }
 
 .nav-link {
-    color: #000000 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
-.dropdown:hover .dropdown-menu {
-    display: block;
-    opacity: 0;
-    visibility: hidden;
-    animation: fadeIn 0.3s ease-in-out forwards;
-}
-
-@keyframes fadeIn {
-    0% {
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-10px);
-    }
-    100% {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
+.nav-link:hover {
+    color: white !important;
+    transform: translateY(-2px);
 }
 
 .dropdown-menu {
     border: none;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 0.5rem;
+    transform-origin: top;
+    animation: dropdownFade 0.3s ease forwards;
+    opacity: 0;
 }
 
-.dropdown-menu a {
-    color: #000000 !important;
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
-.account-actions {
-    margin-top: 1rem;
+.dropdown-item {
+    color: #495057 !important;
+    padding: 0.7rem 1.2rem;
+    border-radius: 6px;
+    transition: all 0.2s;
 }
 
-.btn-account {
-    color: #000000;
-    margin-right: 1rem;
-}
-
-.btn-deposit {
-    background-color: #28a745;
-}
-
-.btn-deposit:hover {
-    background-color: #218838;
-}
-
-.btn-withdraw {
-    background-color: #dc3545;
-}
-
-.btn-withdraw:hover {
-    background-color: #c82333;
+.dropdown-item:hover {
+    background-color: #e9ecef;
+    transform: translateX(5px);
 }
 
 .btn {
-    color: #000000;
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .btn-primary {
-    background-color: #007bff;
+    background: linear-gradient(135deg, #0061f2 0%, #00a6eb 100%);
+    border: none;
+    color: white !important;
 }
 
 .btn-primary:hover {
-    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 97, 242, 0.2);
 }
 
 .btn-success {
-    background-color: #28a745;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    color: white !important;
 }
 
 .btn-success:hover {
-    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
 }
 
-.btn-secondary {
-    background-color: #6c757d;
+.alert {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.btn-secondary:hover {
-    background-color: #545b62;
+.form-control {
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    border-color: #0061f2;
+    box-shadow: 0 0 0 0.2rem rgba(0, 97, 242, 0.15);
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: none;
+    padding: 1rem;
+}
+
+.container {
+    padding: 2rem 1rem;
 }

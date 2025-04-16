@@ -46,7 +46,12 @@
             <tr>
                 <td>{{ loan.company_name }}</td>
                 <td>{{ loan.amount }} млн</td>
-                <td>{{ loan.invested_amount }} млн</td>
+                <td>
+                    <div class="sparkline">
+                        <div class="sparkline-fill" style="width: {{ (loan.invested_amount / loan.amount * 100)|round }}%"></div>
+                        <div class="sparkline-tooltip">Собрано: {{ (loan.invested_amount / loan.amount * 100)|round }}%</div>
+                    </div>
+                </td>
                 <td>{{ loan.term }} месяцев</td>
                 <td>
                     {% if loan.status == 'pending' %}

@@ -161,3 +161,34 @@ body {
 .container {
     padding: 2rem 1rem;
 }
+
+.sparkline {
+    width: 100px;
+    height: 20px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.sparkline-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    transition: width 0.3s ease;
+}
+
+.sparkline-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    display: none;
+    z-index: 100;
+    white-space: nowrap;
+}
+
+.sparkline:hover .sparkline-tooltip {
+    display: block;
+}

@@ -324,7 +324,7 @@ def get_investor_portfolio(investor_id):
                  FROM investments i
                  JOIN loans l ON i.loan_id = l.id
                  JOIN investment_offers io ON l.id = io.loan_id
-                 WHERE i.investor_id = ? AND l.status IN ("accepted", "issued")''', (investor_id,))
+                 WHERE i.investor_id = ? AND l.status IN ("accepted", "issued", "pending_approval")''', (investor_id,))
     investments = c.fetchall()
     conn.close()
     return [{'company_name': inv[0], 'amount': inv[1], 'issue_date': inv[2], 
@@ -401,6 +401,38 @@ def add_transaction(user_id, amount, trans_type, method):
     conn.commit()
     conn.close()
     return True
+
+def transfer_to_borrower(loan_id):
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
+    c = conn.cursor()
+    try:
+        c.execute('SELECT user_id, amount FROM loans WHERE id = ?', (loan_id,))
+        loan = c.fetchone()
+        if not loan:
+            print(f"Error: Loan {loan_id} not found")
+            return False
+            
+        borrower_id, loan_amount = loan
+        print(f"Transferring {loan_amount} to borrower_id={borrower_id}")
+        
+        # Add transaction record
+        date = datetime.now().strftime('%Y-%m-%d')
+        c.execute('INSERT INTO transactions (user_id, amount, type, method, date) VALUES (?, ?, ?, ?, ?)',
+                  (borrower_id, loan_amount, 'loan_received', 'platform', date))
+                  
+        # Update borrower's balance
+        c.execute('UPDATE nominal_accounts SET balance = balance + ? WHERE user_id = ?',
+                  (loan_amount, borrower_id))
+                  
+        conn.commit()
+        print(f"Successfully transferred {loan_amount} to borrower_id={borrower_id}")
+        return True
+    except Exception as e:
+        print(f"Error in transfer_to_borrower: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
 
 def get_transactions(user_id):
     conn = sqlite3.connect('p2p_lending.db', timeout=30.0)

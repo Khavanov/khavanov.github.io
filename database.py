@@ -271,8 +271,13 @@ def add_investment(investor_id, loan_id, amount):
                 raise ValueError(f"Сумма инвестиции ({amount} млн) превышает остаток по займу ({remaining} млн)")
 
             # Добавление инвестиции
+            investment_date = datetime.now().strftime('%Y-%m-%d')
             c.execute('INSERT INTO investments (investor_id, loan_id, amount, investment_date) VALUES (?, ?, ?, ?)',
-                      (investor_id, loan_id, amount, datetime.now().strftime('%Y-%m-%d')))
+                      (investor_id, loan_id, amount, investment_date))
+
+            # Добавление записи в историю транзакций
+            c.execute('INSERT INTO transactions (user_id, amount, type, method, date) VALUES (?, ?, ?, ?, ?)',
+                      (investor_id, amount, 'investment', f'Инвестиция в {loan_id}', investment_date))
 
             # Обновление статуса займа если собрана вся сумма
             new_invested = invested + amount

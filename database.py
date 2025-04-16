@@ -2,16 +2,16 @@ import sqlite3
 from datetime import datetime
 
 def init_db():
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
-    
+
     c.execute('''CREATE TABLE IF NOT EXISTS users (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  email TEXT UNIQUE NOT NULL,
                  password BLOB NOT NULL,
                  user_type TEXT NOT NULL
                  )''')
-    
+
     c.execute('''CREATE TABLE IF NOT EXISTS loans (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  user_id INTEGER,
@@ -23,7 +23,7 @@ def init_db():
                  status TEXT DEFAULT 'pending',
                  FOREIGN KEY (user_id) REFERENCES users(id)
                  )''')
-    
+
     try:
         c.execute('ALTER TABLE loans ADD COLUMN issue_date TEXT')
     except sqlite3.OperationalError:
@@ -36,7 +36,7 @@ def init_db():
         c.execute('ALTER TABLE loans ADD COLUMN collateral TEXT')
     except sqlite3.OperationalError:
         pass
-    
+
     c.execute('''CREATE TABLE IF NOT EXISTS investment_offers (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  loan_id INTEGER,
@@ -45,7 +45,7 @@ def init_db():
                  interest_rate REAL NOT NULL,
                  FOREIGN KEY (loan_id) REFERENCES loans(id)
                  )''')
-    
+
     c.execute('''CREATE TABLE IF NOT EXISTS investments (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  investor_id INTEGER,
@@ -55,20 +55,20 @@ def init_db():
                  FOREIGN KEY (investor_id) REFERENCES users(id),
                  FOREIGN KEY (loan_id) REFERENCES loans(id)
                  )''')
-    
+
     c.execute('''CREATE TABLE IF NOT EXISTS settings (
                  user_id INTEGER PRIMARY KEY,
                  currency TEXT DEFAULT 'RUB',
                  theme TEXT DEFAULT 'light',
                  FOREIGN KEY (user_id) REFERENCES users(id)
                  )''')
-    
+
     c.execute('''CREATE TABLE IF NOT EXISTS nominal_accounts (
                  user_id INTEGER PRIMARY KEY,
                  balance REAL DEFAULT 0.0,
                  FOREIGN KEY (user_id) REFERENCES users(id)
                  )''')
-    
+
     c.execute('''CREATE TABLE IF NOT EXISTS transactions (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                  user_id INTEGER,
@@ -78,12 +78,12 @@ def init_db():
                  date TEXT NOT NULL,
                  FOREIGN KEY (user_id) REFERENCES users(id)
                  )''')
-    
+
     conn.commit()
     conn.close()
 
 def add_user(email, password, user_type):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('INSERT INTO users (email, password, user_type) VALUES (?, ?, ?)',
               (email, password, user_type))
@@ -99,7 +99,7 @@ def add_user(email, password, user_type):
     return user_id
 
 def get_user_by_email(email):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('SELECT id, email, password, user_type FROM users WHERE email = ?', (email,))
     user = c.fetchone()
@@ -109,7 +109,7 @@ def get_user_by_email(email):
     return None
 
 def add_loan(user_id, amount, term, company_name, description, file_path):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('INSERT INTO loans (user_id, amount, term, company_name, description, file_path, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
               (user_id, amount, term, company_name, description, file_path, 'pending'))
@@ -117,7 +117,7 @@ def add_loan(user_id, amount, term, company_name, description, file_path):
     conn.close()
 
 def get_all_loans():
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('SELECT id, user_id, amount, term, company_name, description, file_path, status FROM loans WHERE status IN ("accepted", "issued")')
     loans = c.fetchall()
@@ -134,7 +134,7 @@ def get_all_loans():
     return result
 
 def get_all_loans_moderator():
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('SELECT id, user_id, amount, term, company_name, description, file_path, status FROM loans')
     loans = c.fetchall()
@@ -150,7 +150,7 @@ def get_all_loans_moderator():
     return result
 
 def get_user_loans(user_id):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('SELECT id, user_id, amount, term, company_name, description, file_path, status FROM loans WHERE user_id = ?', (user_id,))
     loans = c.fetchall()
@@ -166,7 +166,7 @@ def get_user_loans(user_id):
     return result
 
 def get_company_details(company_id):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('SELECT id, amount, term, company_name, description, file_path, status FROM loans WHERE id = ?', (company_id,))
     company = c.fetchone()
@@ -181,14 +181,14 @@ def get_company_details(company_id):
     return None
 
 def delete_loan(loan_id):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('DELETE FROM loans WHERE id = ?', (loan_id,))
     conn.commit()
     conn.close()
 
 def add_investment_offer(loan_id, amount, term, interest_rate):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('INSERT INTO investment_offers (loan_id, amount, term, interest_rate) VALUES (?, ?, ?, ?)',
               (loan_id, amount, term, interest_rate))
@@ -200,7 +200,7 @@ def add_investment_offer(loan_id, amount, term, interest_rate):
     conn.close()
 
 def get_investment_offer(loan_id):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('''SELECT io.loan_id, io.amount, io.term, io.interest_rate, l.user_id, l.company_name
                  FROM investment_offers io
@@ -214,7 +214,7 @@ def get_investment_offer(loan_id):
     return None
 
 def update_loan_status(loan_id, status, issue_date=None, maturity_date=None):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     if issue_date and maturity_date:
         c.execute('UPDATE loans SET status = ?, issue_date = ?, maturity_date = ? WHERE id = ?',
@@ -225,7 +225,7 @@ def update_loan_status(loan_id, status, issue_date=None, maturity_date=None):
     conn.close()
 
 def get_invested_amount(loan_id):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('SELECT SUM(amount) FROM investments WHERE loan_id = ?', (loan_id,))
     total = c.fetchone()[0]
@@ -233,52 +233,52 @@ def get_invested_amount(loan_id):
     return total or 0.0
 
 def add_investment(investor_id, loan_id, amount):
-    conn = sqlite3.connect('p2p_lending.db', isolation_level=None)
+    conn = sqlite3.connect('p2p_lending.db', isolation_level=None, timeout=30.0)
     c = conn.cursor()
     try:
         c.execute('BEGIN EXCLUSIVE')
         print(f"Attempting investment: investor_id={investor_id}, loan_id={loan_id}, amount={amount}")
-        
+
         # Проверка займа
         c.execute('SELECT amount, status FROM loans WHERE id = ?', (loan_id,))
         loan = c.fetchone()
         if not loan:
             print(f"Error: Loan {loan_id} not found")
             raise ValueError("Займ не найден")
-            
+
         loan_amount, status = loan
         print(f"Loan details: amount={loan_amount}, status={status}")
-        
+
         # Проверка статуса
         if status != 'accepted':
             print(f"Error: Loan {loan_id} is not available for funding")
             raise ValueError("Займ недоступен для инвестирования")
-            
+
         # Проверка суммы
         if amount <= 0:
             print(f"Error: Invalid investment amount={amount}")
             raise ValueError("Сумма инвестиции должна быть больше 0")
-            
+
         # Проверка остатка по займу
         invested = get_invested_amount(loan_id)
         remaining = loan_amount - invested
         print(f"Current invested amount: {invested}, remaining: {remaining}")
-        
+
         if amount > remaining:
             print(f"Error: Investment exceeds remaining amount: amount={amount}, remaining={remaining}")
             raise ValueError(f"Сумма инвестиции ({amount} млн) превышает остаток по займу ({remaining} млн)")
-            
+
         # Добавление инвестиции
         c.execute('INSERT INTO investments (investor_id, loan_id, amount, investment_date) VALUES (?, ?, ?, ?)',
                   (investor_id, loan_id, amount, datetime.now().strftime('%Y-%m-%d')))
-                  
+
         # Обновление статуса займа если собрана вся сумма
         new_invested = invested + amount
         print(f"New invested amount: {new_invested}")
         if abs(new_invested - loan_amount) < 0.0001:
             print(f"Loan {loan_id} fully funded, setting status to 'pending_approval'")
             c.execute('UPDATE loans SET status = ? WHERE id = ?', ('pending_approval', loan_id))
-            
+
         c.execute('COMMIT')
         print(f"Investment successful: {amount} for loan_id={loan_id}")
         return True
@@ -290,7 +290,7 @@ def add_investment(investor_id, loan_id, amount):
         conn.close()
 
 def transfer_to_borrower(loan_id):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('SELECT user_id, amount FROM loans WHERE id = ?', (loan_id,))
     loan = c.fetchone()
@@ -311,7 +311,7 @@ def transfer_to_borrower(loan_id):
     conn.close()
 
 def get_investor_portfolio(investor_id):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('''SELECT l.company_name, i.amount, COALESCE(l.issue_date, 'Не указано'), 
                  COALESCE(l.maturity_date, 'Не указано'), io.interest_rate, COALESCE(l.collateral, 'Отсутствует'),
@@ -327,7 +327,7 @@ def get_investor_portfolio(investor_id):
              'status': inv[6]} for inv in investments]
 
 def get_investor_summary(investor_id):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('SELECT SUM(amount) FROM investments WHERE investor_id = ?', (investor_id,))
     total_invested = c.fetchone()[0] or 0
@@ -337,7 +337,7 @@ def get_investor_summary(investor_id):
     return {'total_invested': total_invested, 'loan_count': loan_count}
 
 def get_user_settings(user_id):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('SELECT currency, theme FROM settings WHERE user_id = ?', (user_id,))
     settings = c.fetchone()
@@ -347,7 +347,7 @@ def get_user_settings(user_id):
     return {'currency': 'RUB', 'theme': 'light'}
 
 def update_user_settings(user_id, currency, theme):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('INSERT OR REPLACE INTO settings (user_id, currency, theme) VALUES (?, ?, ?)',
               (user_id, currency, theme))
@@ -355,7 +355,7 @@ def update_user_settings(user_id, currency, theme):
     conn.close()
 
 def get_nominal_balance(user_id):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('SELECT balance FROM nominal_accounts WHERE user_id = ?', (user_id,))
     balance = c.fetchone()
@@ -363,7 +363,7 @@ def get_nominal_balance(user_id):
     return balance[0] if balance else 0.0
 
 def add_transaction(user_id, amount, trans_type, method):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     print(f"Transaction: user_id={user_id}, amount={amount}, type={trans_type}, method={method}")
     c.execute('SELECT balance FROM nominal_accounts WHERE user_id = ?', (user_id,))
@@ -373,32 +373,32 @@ def add_transaction(user_id, amount, trans_type, method):
         c.execute('INSERT INTO nominal_accounts (user_id, balance) VALUES (?, ?)', (user_id, 0.0))
         balance = (0.0,)
     print(f"Current balance: {balance[0]}")
-    
+
     if trans_type in ('withdrawal', 'investment'):
         if balance[0] < amount:
             print(f"Insufficient funds: balance={balance[0]}, attempted={amount}")
             conn.close()
             return False
-    
+
     date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     c.execute('INSERT INTO transactions (user_id, amount, type, method, date) VALUES (?, ?, ?, ?, ?)',
               (user_id, amount, trans_type, method, date))
-    
+
     if trans_type == 'deposit':
         c.execute('UPDATE nominal_accounts SET balance = balance + ? WHERE user_id = ?', (amount, user_id))
     elif trans_type in ('withdrawal', 'investment'):
         c.execute('UPDATE nominal_accounts SET balance = balance - ? WHERE user_id = ?', (amount, user_id))
-    
+
     c.execute('SELECT balance FROM nominal_accounts WHERE user_id = ?', (user_id,))
     new_balance = c.fetchone()
     print(f"New balance after {trans_type}: {new_balance[0] if new_balance else 0}")
-    
+
     conn.commit()
     conn.close()
     return True
 
 def get_transactions(user_id):
-    conn = sqlite3.connect('p2p_lending.db')
+    conn = sqlite3.connect('p2p_lending.db', timeout=30.0)
     c = conn.cursor()
     c.execute('SELECT amount, type, method, date FROM transactions WHERE user_id = ? ORDER BY date DESC', (user_id,))
     transactions = c.fetchall()

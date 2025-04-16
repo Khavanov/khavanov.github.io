@@ -238,31 +238,47 @@ def add_investment(investor_id, loan_id, amount):
     try:
         c.execute('BEGIN EXCLUSIVE')
         print(f"Attempting investment: investor_id={investor_id}, loan_id={loan_id}, amount={amount}")
+        
+        # Проверка займа
         c.execute('SELECT amount, status FROM loans WHERE id = ?', (loan_id,))
         loan = c.fetchone()
         if not loan:
             print(f"Error: Loan {loan_id} not found")
             raise ValueError("Займ не найден")
+            
         loan_amount, status = loan
         print(f"Loan details: amount={loan_amount}, status={status}")
-        if status not in ['accepted', 'funding']:
+        
+        # Проверка статуса
+        if status != 'accepted':
             print(f"Error: Loan {loan_id} is not available for funding")
             raise ValueError("Займ недоступен для инвестирования")
+            
+        # Проверка суммы
         if amount <= 0:
             print(f"Error: Invalid investment amount={amount}")
             raise ValueError("Сумма инвестиции должна быть больше 0")
+            
+        # Проверка остатка по займу
         invested = get_invested_amount(loan_id)
-        print(f"Current invested amount: {invested}")
-        if invested + amount > loan_amount:
-            print(f"Error: Investment exceeds loan: invested={invested}, amount={amount}, loan_amount={loan_amount}")
-            raise ValueError("Сумма инвестиции превышает остаток по займу")
+        remaining = loan_amount - invested
+        print(f"Current invested amount: {invested}, remaining: {remaining}")
+        
+        if amount > remaining:
+            print(f"Error: Investment exceeds remaining amount: amount={amount}, remaining={remaining}")
+            raise ValueError(f"Сумма инвестиции ({amount} млн) превышает остаток по займу ({remaining} млн)")
+            
+        # Добавление инвестиции
         c.execute('INSERT INTO investments (investor_id, loan_id, amount, investment_date) VALUES (?, ?, ?, ?)',
                   (investor_id, loan_id, amount, datetime.now().strftime('%Y-%m-%d')))
+                  
+        # Обновление статуса займа если собрана вся сумма
         new_invested = invested + amount
         print(f"New invested amount: {new_invested}")
         if abs(new_invested - loan_amount) < 0.0001:
             print(f"Loan {loan_id} fully funded, setting status to 'pending_approval'")
             c.execute('UPDATE loans SET status = ? WHERE id = ?', ('pending_approval', loan_id))
+            
         c.execute('COMMIT')
         print(f"Investment successful: {amount} for loan_id={loan_id}")
         return True
